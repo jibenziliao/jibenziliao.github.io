@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>基本资料的博客</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://blog.keyangyang.xyz/"/>
+  <updated>2018-12-07T06:22:45.006Z</updated>
+  <id>https://blog.keyangyang.xyz/</id>
+  
+  <author>
+    <name>基本资料</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>JavaScript词法作用域</title>
+    <link href="https://blog.keyangyang.xyz/2017/03/14/JavaScript%E8%AF%8D%E6%B3%95%E4%BD%9C%E7%94%A8%E5%9F%9F/"/>
+    <id>https://blog.keyangyang.xyz/2017/03/14/JavaScript词法作用域/</id>
+    <published>2017-03-14T03:16:31.000Z</published>
+    <updated>2018-12-07T06:22:45.006Z</updated>
+    
+    <content type="html"><![CDATA[<p>看到一道经典的面试题，关于JavaScript作用域问题。</p><h1 id="JavaScript变量作用域"><a href="#JavaScript变量作用域" class="headerlink" title="JavaScript变量作用域"></a>JavaScript变量作用域</h1><h2 id="函数限定变量作用域"><a href="#函数限定变量作用域" class="headerlink" title="函数限定变量作用域"></a>函数限定变量作用域</h2><p>在JavaScript中，只有函数可以限定一个变量的作用范围。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="literal">true</span>) &#123;</span><br><span class="line"> <span class="keyword">var</span> num = <span class="number">10</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(num);</span><br></pre></td></tr></table></figure></p><p>上面的代码会输出10.</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> func = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"> <span class="keyword">var</span> num = <span class="number">10</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line"> <span class="built_in">console</span>.log(num);</span><br><span class="line">&#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line"> <span class="built_in">console</span>.log(e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>上面的代码运行时，会抛出一个异常，<strong>ReferenceError: num is not defined</strong>，即变量num没有定义。<br>也就是说，函数内的变量无法在函数外使用。但是可以在函数内部使用，即使是在赋值之前，如下：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> func = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"> <span class="built_in">console</span>.log(num);</span><br><span class="line"> <span class="keyword">var</span> num = <span class="number">10</span>;</span><br><span class="line"> <span class="built_in">console</span>.log(num);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line"> func();</span><br><span class="line">&#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line"> <span class="built_in">console</span>.log(e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>这里会先在控制台先打后印undefined和10。<br>这里会出现undefined牵扯到子域访问父域的问题。</p><h2 id="子域访问父域"><a href="#子域访问父域" class="headerlink" title="子域访问父域"></a>子域访问父域</h2><p>在JavaScript中，只有函数可以限定变量的作用域，那么在函数中的函数就成为该作用域的子域。<br>子域中的代码可以访问到父域中的变量，如下：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> func = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"> <span class="keyword">var</span> num = <span class="number">10</span>;</span><br><span class="line"> <span class="keyword">var</span> sub_func = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(num);</span><br><span class="line"> &#125;;</span><br><span class="line"> sub_func();</span><br><span class="line">&#125;;</span><br><span class="line">func();</span><br></pre></td></tr></table></figure></p><p>执行得到结果10。可以看到上文所说的变量访问情况。但是在子域中访问父域的代码也是有条件的。如下面代码：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> func = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"> <span class="keyword">var</span> num = <span class="number">10</span>;</span><br><span class="line"> <span class="keyword">var</span> sub_func = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> num = <span class="number">20</span>;</span><br><span class="line">  <span class="built_in">console</span>(num);</span><br><span class="line"> &#125;;</span><br><span class="line"> sub_func();</span><br><span class="line">&#125;;</span><br><span class="line">func();</span><br></pre></td></tr></table></figure></p><p>子域中又定义了一个变量<code>var num=20</code>,那么子域会访问当前子域中的变量，不会在访问父域中的变量。</p><p>由此可见访问有一定规则可言。 在JavaScript中使用变量，JavaScript解释器首先在当前作<br>用域中搜索是否有该变量的定义，如果有，就是用这个变量；如果没有就到父域中寻找该变量。</p><p>以此类推，直到最顶级作用域，仍然没有找到就抛出异常”变量未定义”。看下面代码：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"> <span class="keyword">var</span> num = <span class="number">10</span>;</span><br><span class="line"> (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> num = <span class="number">20</span>;</span><br><span class="line">  (<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">   <span class="built_in">console</span>.log(num);</span><br><span class="line">  &#125;)()</span><br><span class="line"> &#125;)();</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure></p><p>这段代码执行后打印出20。如果将<code>var num = 20;</code>去掉，那么打印的就是10。 同样，如果再去掉<br><code>var num = 10</code>，那么就会出现未定义的错误。</p><h2 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h2><p>其它更详细的解释及案例：</p><p><a href="http://www.cnblogs.com/lhb25/archive/2011/09/06/javascript-scope-chain.html" target="_blank" rel="noopener">JavaScript 开发进阶：理解 JavaScript 作用域和作用域链</a></p><p><a href="http://www.jb51.net/article/44307.htm" target="_blank" rel="noopener">深入理解JavaScript高级之词法作用域和作用域链</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;看到一道经典的面试题，关于JavaScript作用域问题。&lt;/p&gt;
+&lt;h1 id=&quot;JavaScript变量作用域&quot;&gt;&lt;a href=&quot;#JavaScript变量作用域&quot; class=&quot;headerlink&quot; title=&quot;JavaScript变量作用域&quot;&gt;&lt;/a&gt;Java
+      
+    
+    </summary>
+    
+      <category term="JavaScript" scheme="https://blog.keyangyang.xyz/categories/JavaScript/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>genertaor-jibenziliao-react配置</title>
+    <link href="https://blog.keyangyang.xyz/2017/03/09/genertaor-jibenziliao-react%E9%85%8D%E7%BD%AE/"/>
+    <id>https://blog.keyangyang.xyz/2017/03/09/genertaor-jibenziliao-react配置/</id>
+    <published>2017-03-09T14:49:30.000Z</published>
+    <updated>2018-12-07T06:22:44.956Z</updated>
+    
+    <content type="html"><![CDATA[<p>为了方便今后的项目搭建，开始学习搭建自己的<a href="http://yeoman.io/generators/" target="_blank" rel="noopener">yeoman</a>脚手架</p><h1 id="genertaor-jibenziliao-react"><a href="#genertaor-jibenziliao-react" class="headerlink" title="genertaor-jibenziliao-react"></a>genertaor-jibenziliao-react</h1><h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>npm仓库地址：<a href="https://www.npmjs.com/package/generator-jibenziliao-react" target="_blank" rel="noopener">genertaor-jibenziliao-react</a></p><p>github仓库地址：<a href="https://github.com/jibenziliao/generator-jibenziliao-react" target="_blank" rel="noopener">genertaor-jibenziliao-react</a></p><p>介绍页面：<a href="https://jibenziliao.github.io/generator-jibenziliao-react/" target="_blank" rel="noopener">genertaor-jibenziliao-react</a></p><h3 id="搭建步骤"><a href="#搭建步骤" class="headerlink" title="搭建步骤"></a>搭建步骤</h3><p>搭建步骤网上有很多，这里简单说明一下</p><p>项目名称一定要以<code>generator-*</code>开头，不然到时候yeoman找不到你的这个脚手架。</p><p>新建目录<code>genertaor-jibenziliao-react</code>，执行<code>npm init</code>，创建一个package.json</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;generator-jibenziliao-react&quot;,</span><br><span class="line">  &quot;version&quot;: &quot;0.0.7&quot;,</span><br><span class="line">  &quot;description&quot;: &quot;基于react+webpack2的项目脚手架&quot;,</span><br><span class="line">  &quot;repository&quot;: &#123;</span><br><span class="line">    &quot;type&quot;: &quot;git&quot;,</span><br><span class="line">    &quot;url&quot;: &quot;git+https://github.com/jibenziliao/generator-jibenziliao-react.git&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;keywords&quot;: [</span><br><span class="line">    &quot;yeoman-generator&quot;,</span><br><span class="line">    &quot;react&quot;,</span><br><span class="line">    &quot;webpack&quot;,</span><br><span class="line">    &quot;yeoman&quot;</span><br><span class="line">  ],</span><br><span class="line">  &quot;author&quot;: &quot;jibenziliao&quot;,</span><br><span class="line">  &quot;license&quot;: &quot;MIT&quot;,</span><br><span class="line">  &quot;bugs&quot;: &#123;</span><br><span class="line">    &quot;url&quot;: &quot;https://github.com/jibenziliao/generator-jibenziliao-react/issues&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;homepage&quot;: &quot;https://jibenziliao.github.io/generator-jibenziliao-react/&quot;,</span><br><span class="line">  &quot;dependencies&quot;: &#123;</span><br><span class="line">    &quot;lodash&quot;: &quot;^4.17.4&quot;,</span><br><span class="line">    &quot;yeoman-generator&quot;: &quot;^1.1.1&quot;,</span><br><span class="line">    &quot;date-util&quot;: &quot;^1.2.1&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>package.json中的<code>description</code>字段也是必写的，这是yeoman索引出来项目的简介。</p><p>关键词里必须包含<code>yeoman-generator</code>,这样yeoman才能对项目建立索引。</p><p>在根目录下新建一个目录<code>generators</code>，最后使用<code>yo</code>初始化的项目的时候，所有的资源文件都是从这个目录下拷贝的。<br>官方还支持另一种目录结构，这里就不做介绍了。感兴趣的可以前往<a href="http://yeoman.io/authoring/index.html" target="_blank" rel="noopener">yeoman官网</a>查看完整教程。</p><p>package.json中的<code>dependencies</code>必须要有<code>yeoman-generator</code>。</p><p>项目的模板文件在<code>generators/app/templates/</code>目录下。</p><p><code>yeoman</code>脚手架有个生成周期的概念：</p><blockquote><p>当执行yo example启动生成器时，它会沿着它的生命周期执行如下特定名称的函数，这些特定名称的函数会放进一个队列里面按顺序执行，如果功能函数不是特定的函数名称，则放进另一个队列default按顺序执行。这些特定的函数名称有:</p></blockquote><pre><code> initializing : 初始化阶段- prompting : 接受用户输入阶段- configuring : 保存配置信息和文件，如.editorconfig- default : 非特定的功能函数名称，本项目并没有用到- writing : 生成项目目录结构阶段（从templates目录下拷贝文件到项目中，需要注意配置路径）- conflicts : 统一处理冲突，如要生成的文件已经存在是否覆盖等处理- install : 安装依赖阶段，如通过npm、bower- end : 生成器即将结束</code></pre><p>具体的配置可查看源码</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;为了方便今后的项目搭建，开始学习搭建自己的&lt;a href=&quot;http://yeoman.io/generators/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;yeoman&lt;/a&gt;脚手架&lt;/p&gt;
+&lt;h1 id=&quot;genertaor-jibenzilia
+      
+    
+    </summary>
+    
+      <category term="webpack" scheme="https://blog.keyangyang.xyz/categories/webpack/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Mac命令行代理</title>
+    <link href="https://blog.keyangyang.xyz/2017/03/05/Mac%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%BB%A3%E7%90%86/"/>
+    <id>https://blog.keyangyang.xyz/2017/03/05/Mac命令行代理/</id>
+    <published>2017-03-05T13:52:54.000Z</published>
+    <updated>2018-12-07T06:22:45.056Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>做开发的朋友肯定经常使用命令行，克隆项目、下载依赖什么的。</p><p>虽然npm可以设置淘宝源，但是有些项目在下载依赖时，会从github上下载。如果本机网络环境不好的话，就比较悲剧了，虽然有了Shadowsocks，但也只能代理浏览器之类的，不能让命令行也实现代理。</p><h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>经过查找，发现了一个简单的方法，可以单次在当前命令行窗口实现代理。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=127.0.0.1:1087</span><br><span class="line"><span class="built_in">export</span> https_proxy=127.0.0.1:1087</span><br></pre></td></tr></table></figure><p>以上将http https协议代理到本地的8087端口,且只对当前终端窗口有效。如果不需要代理，关掉当前窗口，<br>重开一个就好了。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;问题&quot;&gt;&lt;a href=&quot;#问题&quot; class=&quot;headerlink&quot; title=&quot;问题&quot;&gt;&lt;/a&gt;问题&lt;/h3&gt;&lt;p&gt;做开发的朋友肯定经常使用命令行，克隆项目、下载依赖什么的。&lt;/p&gt;
+&lt;p&gt;虽然npm可以设置淘宝源，但是有些项目在下载依赖时，会从githu
+      
+    
+    </summary>
+    
+      <category term="工具" scheme="https://blog.keyangyang.xyz/categories/%E5%B7%A5%E5%85%B7/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>ESLint配置技巧</title>
+    <link href="https://blog.keyangyang.xyz/2017/03/04/ESLint%E9%85%8D%E7%BD%AE%E6%8A%80%E5%B7%A7/"/>
+    <id>https://blog.keyangyang.xyz/2017/03/04/ESLint配置技巧/</id>
+    <published>2017-03-04T15:23:44.000Z</published>
+    <updated>2018-12-07T06:42:38.872Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>在使用VS Code配置ESLint插件时，发现ESLint语法检查对node环境的一些常量支持的不太好。<br>如图所示</p><p><img src="./ESLint配置技巧/error.png" alt=""></p><h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><p>这里需要用到ESLint的API：<a href="http://eslint.org/docs/user-guide/configuring.html#configuring-rules" target="_blank" rel="noopener">Disabling Rules with Inline Comments</a><br>使用注释的方法，单独禁用某一行代码的语法检查<br>如图所示</p><p><img src="./ESLint配置技巧/correct.png" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;问题&quot;&gt;&lt;a href=&quot;#问题&quot; class=&quot;headerlink&quot; title=&quot;问题&quot;&gt;&lt;/a&gt;问题&lt;/h3&gt;&lt;p&gt;在使用VS Code配置ESLint插件时，发现ESLint语法检查对node环境的一些常量支持的不太好。&lt;br&gt;如图所示&lt;/p&gt;
+&lt;p&gt;&lt;
+      
+    
+    </summary>
+    
+      <category term="工具" scheme="https://blog.keyangyang.xyz/categories/%E5%B7%A5%E5%85%B7/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>HTML5 全局contenteditable属性</title>
+    <link href="https://blog.keyangyang.xyz/2017/03/04/HTML5-%E5%85%A8%E5%B1%80contenteditable%E5%B1%9E%E6%80%A7/"/>
+    <id>https://blog.keyangyang.xyz/2017/03/04/HTML5-全局contenteditable属性/</id>
+    <published>2017-03-04T07:40:39.000Z</published>
+    <updated>2018-12-07T06:22:44.974Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>今天无聊在上网时，发现某网站中的多选框中会有光标闪烁。</p><p>第一反应是，这个不会是input吧，但input只支持文本，里面的UI元素怎么弄的？</p><h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>后来发现，多选框的div有一个属性：contenteditable</p><p>原来这个contenteditable属性是HTML5的新属性。</p><p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTML/Global_attributes/contenteditable" target="_blank" rel="noopener">contenteditable</a> 属性规定是否可编辑元素的内容。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;问题&quot;&gt;&lt;a href=&quot;#问题&quot; class=&quot;headerlink&quot; title=&quot;问题&quot;&gt;&lt;/a&gt;问题&lt;/h3&gt;&lt;p&gt;今天无聊在上网时，发现某网站中的多选框中会有光标闪烁。&lt;/p&gt;
+&lt;p&gt;第一反应是，这个不会是input吧，但input只支持文本，里面的UI
+      
+    
+    </summary>
+    
+      <category term="HTML5" scheme="https://blog.keyangyang.xyz/categories/HTML5/"/>
+    
+    
+      <category term="HTML5" scheme="https://blog.keyangyang.xyz/tags/HTML5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>随笔</title>
+    <link href="https://blog.keyangyang.xyz/2016/12/01/%E9%9A%8F%E7%AC%94/"/>
+    <id>https://blog.keyangyang.xyz/2016/12/01/随笔/</id>
+    <published>2016-12-01T13:51:27.000Z</published>
+    <updated>2018-12-07T06:22:45.091Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><h3 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h3>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;测试&quot;&gt;&lt;a href=&quot;#测试&quot; class=&quot;headerlink&quot; title=&quot;测试&quot;&gt;&lt;/a&gt;测试&lt;/h2&gt;&lt;h3 id=&quot;测试-1&quot;&gt;&lt;a href=&quot;#测试-1&quot; class=&quot;headerlink&quot; title=&quot;测试&quot;&gt;&lt;/a&gt;测试&lt;/h3&gt;
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>
